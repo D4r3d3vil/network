@@ -1,0 +1,40 @@
+{% csrf_token %}
+<div id="openTweet">
+    <input type="hidden" id="postId" value="{{post.id}}">
+    <div themed noOutline class="tweet card my-2">
+      <div class="card-body my-card">
+        <div class="d-flex mb-2">
+          <div class="d-flex justify-content-start">
+            <a id="user_profile">
+              <span class="text-secondary" id="user_name">{%if request.user == post.user%}you{%else%}{{post.user.username}}{%endif%}</span>
+            </a>
+          </div>
+          <div class="w-100 d-flex justify-content-end">
+            <span id="time" class="mx-2 text-secondary">{{post.timestamp}}</span>
+          </div>
+        </div>
+        <span id="post-content" class="post">{{post}}</span>
+        <div class="like mt-3">
+        </div>
+      </div>
+      <div id="reply">
+        <form onsubmit="addComment(event)">
+          <input type="hidden" id="postId">
+          <textarea class="mt-2 form-control" id="PostcommentText" rows="4" placeholder="Post your reply!"></textarea><br>
+          <button type="submit" id="sendBtn">Send</button>
+        </form>
+      </div>
+    </div>
+    <button id="recent" onclick="window.location.href = `${window.location.origin}${window.location.pathname}`"
+      class="btn btn-secondary">Most recent</button>
+    <button id="likes"
+      onclick="window.location.href = `${window.location.origin}${window.location.pathname}?filter=likes`"
+      class="btn btn-secondary">Most liked</button>
+    <div id="comments">
+      <div class="comment-section">
+        {% for comment in comments  %}
+        {% include "components/comment.html" %}
+        {%endfor%}
+      </div>
+    </div>
+  </div>
