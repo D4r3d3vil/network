@@ -52,9 +52,6 @@
   }else{
     document.querySelector(`#recent`).classList.replace('btn-secondary', 'btn-primary')
   }
-  function openTweet(id){
-    window.location.href = `${window.location.origin}/p/${id}`
-  }
   if (!localStorage.getItem('signedin')) localStorage.setItem('signedin', 'true')
 </script>
 {% endblock %}
