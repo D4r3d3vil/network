@@ -17,4 +17,5 @@ urlpatterns = [
     path("comment/", views.comment),
     path("comment/like/", views.like_comment),
     path("notifications/", views.get_notifications),
+    path('chat', views.chatPage, name="chat")
 ]

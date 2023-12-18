@@ -21,23 +21,25 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '13kl@xtukpwe&xj2xoysxe9_6=tf@f8ewxer5n&ifnd46+6$%8'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
 
 
 # Application definition
 
 INSTALLED_APPS = [
     'network',
+    "django_extensions",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'daphne',
     'django.contrib.staticfiles',
-    'channels',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -69,7 +71,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project4.wsgi.application'
-
+ASGI_APPLICATION = 'project4.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -121,3 +123,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 LOGIN_URL = '/login'
+PORT = 443
+# yourproject/settings.py
+
+# yourproject/settings.py
+CHANNEL_LAYERS = {
+	"default": {
+		"BACKEND": "channels.layers.InMemoryChannelLayer"
+	}
+}

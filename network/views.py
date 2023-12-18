@@ -35,6 +35,9 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
 
+@login_required
+def chatPage(request):
+    return render(request, "network/chatPage.html", {})
 
 def register(request):
     if request.method == "POST":
