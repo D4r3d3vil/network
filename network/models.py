@@ -16,10 +16,10 @@ class Comment(models.Model):
             "user": self.user,
             "comment": self.comment,
             "timestamp": self.timestamp.isoformat(),
-            "likes": [user for user in self.likes.all()],
+            "likes": [user.username for user in self.likes.all()],
         }
     def __str__(self):
-        return self.user.username + ": " + self.comment
+        return self.user + ": " + self.comment
 
 
 class Post(models.Model):
