@@ -123,7 +123,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 LOGIN_URL = '/login'
-PORT = 443
 # yourproject/settings.py
 
 # yourproject/settings.py

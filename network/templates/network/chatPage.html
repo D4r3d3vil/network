@@ -13,7 +13,7 @@
 	<br />
 	</div>
 	<script>
-	const chatSocket = new WebSocket("wss://" + window.location.host + "/chat/");
+	const chatSocket = new WebSocket('wss://maincs50.pythonanywhere.com/chat/');
 	chatSocket.onopen = function (e) {
 		alert("The connection was setup successfully !");
 	};
