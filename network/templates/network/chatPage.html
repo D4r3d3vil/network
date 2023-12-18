@@ -19,6 +19,7 @@
 	};
 	chatSocket.onclose = function (e) {
 		alert("Something unexpected happened! please contact the developer");
+		console.log(e)
 	};
 	document.querySelector("#id_message_send_input").focus();
 	document.querySelector("#id_message_send_input").onkeyup = function (e) {
