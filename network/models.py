@@ -16,7 +16,7 @@ class Comment(models.Model):
             "user": self.user,
             "comment": self.comment,
             "timestamp": self.timestamp.isoformat(),
-            "likes": [user.username for user in self.likes.all()],
+            "likes": [user for user in self.likes.all()],
         }
     def __str__(self):
         return self.user.username + ": " + self.comment
