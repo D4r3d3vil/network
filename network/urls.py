@@ -17,5 +17,8 @@ urlpatterns = [
     path("comment/", views.comment),
     path("comment/like/", views.like_comment),
     path("notifications/", views.get_notifications),
-    path('chat', views.chatPage, name="chat")
+    path("chat/", views.chats, name="chat"),
+    path("chat/<roomId>", views.chat_room, name="chatRoom"),
+    path("messages/<roomId>/", views.get_chats, name="getChats"),
+    path("404", views.fourofour, name="404")
 ]

@@ -4,12 +4,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.core.paginator import Paginator
-from .models import User, Post, Profile, Comment, Notification
+from .models import User, Post, Profile, Comment, Notification, ChatRoom, ChatMessage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core import serializers
 
 def login_view(request):
     if request.method == "POST":
@@ -35,9 +36,51 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("login"))
 
+def fourofour(request):
+    return render(request, 'network/404.html', {})
+
+def chats(request):
+    user = User.objects.get(id=request.user.id)
+    rooms = ChatRoom.objects.filter(members=user)
+    ''' for room in rooms:
+        room['notifications'] = 0
+        for message in room.messages.all():
+            if message.read
+            room['notifications']+=1
+    '''
+    return render(request, 'network/rooms.html', {'rooms':rooms})
+
+@staff_member_required(login_url='/404')
 @login_required
-def chatPage(request):
-    return render(request, "network/chatPage.html", {})
+def chat_room(request, roomId):
+    user = User.objects.get(id=request.user.id)
+    try:
+        roomModel = ChatRoom.objects.get(roomId=roomId)
+        roomModel.messages.filter(timestamp__gt=user.lastMsgRead)
+    except:
+        return render(request, 'network/404.html', {'message':'Room not found it may have been deleted.'})
+    user.save()
+    return render(request, 'network/chat_room.html', {'room':roomModel.name, 'roomId':roomModel.roomId, 'messages':roomModel.messages})
+
+@staff_member_required
+@login_required
+def get_chats(request, roomId):
+    if request.method == "GET":
+        user = User.objects.get(id=request.user.id)
+        try:
+            roomModel = ChatRoom.objects.get(roomId=roomId)
+            roomMessages = roomModel.messages.filter(timestamp__gt=user.lastMsgRead)
+        except:
+            return render(request, 'network/404.html', {'message':'Room not found it may have been deleted.'})
+        user.save()
+        return JsonResponse({'messages': serializers.serialize("json", roomMessages.all())})
+    elif request.method == "POST":
+        message = ChatMessage(message=request.POST.get('message'), user=request.user.username)
+        message.save()
+        roomModel = ChatRoom.objects.get(roomId=roomId)
+        roomModel.messages.add(message)
+        roomModel.save()
+        return JsonResponse({'status': 200})
 
 def register(request):
     if request.method == "POST":

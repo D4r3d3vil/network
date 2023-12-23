@@ -1,0 +1,32 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .container {
+        margin-top: 50px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <!-- List of chat rooms -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Chat Rooms</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for room in rooms.all %}
+                    <li class="list-group-item"><a href="/chat/{{room.roomId}}">{{room.name}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+</div>
+{%endblock%}

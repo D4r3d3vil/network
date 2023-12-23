@@ -1,0 +1,95 @@
+{%extends "network/layout.html" %}
+{%block body%}
+<style>
+    /* Additional styles can be added here */
+    #chat-container, .rooms {
+        height: 85%;
+    }
+
+    #chat-messages {
+        overflow-y: auto;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .message {
+        margin-bottom: 10px;
+    }
+    .card{
+        height: 100%;
+    }
+    #message-input {
+        border-top: 1px solid #dee2e6;
+        padding: 10px;
+    }
+</style>
+<div id="chat-container" class="container">
+    <div class="card">
+        <button style="background-color: transparent;" onclick="window.location.href='/chat'">Back to chats</button>
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{{room}}</h4>
+        </div>
+        <div id="chat-messages" class="card-body">
+            {% for message in messages.all %}
+            <div class="message">
+                <strong>{%if message.user == request.user.username %}you{%else%}{{ message.user }}{%endif%}:</strong> {{ message.message }}
+            </div>
+            {% endfor %}
+        </div>
+        <div id="message-input">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Type your message" aria-label="Type your message"
+                    aria-describedby="send-button" id="messageInp">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button" id="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+        setInterval(function () {
+            $.ajax({
+                type: 'GET',
+                url: "/messages/{{roomId}}/",
+                success: function (response) {
+                    response.messages = JSON.parse(response.messages)
+                    document.querySelectorAll('.temp').forEach(element=>element.remove())
+                    response.messages.forEach(message =>{
+                        var temp = `<div class='message'><strong>${message.fields.user=='{{request.user.username}}'?'you':message.fields.user}:</strong> ${message.fields.message} </div>`
+                        $("#chat-messages").append(temp);
+                    })
+                },
+                error: function (response) {
+                    alert(`ERROR recieved: possible man-in-the-middle attack encrypting messages...`)
+                }
+            });
+        }, 10000);
+    })
+    let cookie = document.cookie
+    let csrfToken = cookie.substring(cookie.indexOf('=') + 1)
+
+    $('#send-button').click(function () {
+        let message = document.getElementById('messageInp').value
+        $.ajax({
+            type: 'POST',
+            url: '/messages/{{roomId}}/',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            data: {message: message},
+            success: function(response){
+                if(response.status == 200){
+                    var temp = `<div class='message temp'><strong>you:</strong> ${message} </div>`
+                    $("#chat-messages").append(temp);
+                    $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+                }
+            }
+        })
+    })
+</script>
+</body>
+{%endblock%}
