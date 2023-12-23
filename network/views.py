@@ -42,12 +42,11 @@ def fourofour(request):
 def chats(request):
     user = User.objects.get(id=request.user.id)
     rooms = ChatRoom.objects.filter(members=user)
-    ''' for room in rooms:
-        room['notifications'] = 0
-        for message in room.messages.all():
-            if message.read
-            room['notifications']+=1
-    '''
+    #for room in rooms:
+        #room['notifications'] = 0
+        #for message in room.messages.all():
+        #    if message.read
+        #    room['notifications']+=1
     return render(request, 'network/rooms.html', {'rooms':rooms})
 
 @staff_member_required(login_url='/404')
