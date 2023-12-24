@@ -53,7 +53,7 @@ class Profile(models.Model):
 		return self.user.username
 class ChatMessage(models.Model):
 	user = models.CharField(max_length=255)
-	read = 
+	read = models.BooleanField(default=False)
 	message = models.TextField()
 	timestamp = models.DateTimeField(auto_now_add=True)
 
