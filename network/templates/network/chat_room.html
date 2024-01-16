@@ -1,48 +1,122 @@
 {%extends "network/layout.html" %}
 {%block body%}
 <style>
-    /* Additional styles can be added here */
     #chat-container, .rooms {
-        height: 85%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     #chat-messages {
+        flex: 1;
         overflow-y: auto;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid #ccc;
+        padding: 10px;
     }
 
     .message {
         margin-bottom: 10px;
+        font-size: 16px; /* Adjust font size for better visibility */
+        line-height: 1.4; /* Adjust line height for better readability */
+        color: #333; /* Adjust text color for better contrast */
     }
-    .card{
+
+    .card {
+        display: flex;
+        flex-direction: column;
         height: 100%;
     }
+
     #message-input {
-        border-top: 1px solid #dee2e6;
+        border-top: 1px solid #ccc;
         padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #f8f9fa;
+        z-index: 1000;
+    }
+
+    #message-input input {
+        flex: 1;
+        margin-right: 10px;
+        border: none;
+        padding: 8px;
+        border-radius: 20px;
+        font-size: 16px; /* Adjust font size for better visibility */
+    }
+
+    #send-button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+    /* Customize the chat header */
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .back-button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        color: #fff;
+    }
+
+    /* Adjust styles for small screens */
+    @media screen and (max-width: 600px) {
+        #message-input {
+            padding: 5px;
+        }
+
+        #message-input input {
+            padding: 8px;
+        }
+
+        #send-button {
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        .card-header {
+            padding: 5px;
+        }
+        .message{
+            font-size: 26px;
+        }
     }
 </style>
 <div id="chat-container" class="container">
     <div class="card">
-        <button style="background-color: transparent;" onclick="window.location.href='/chat'">Back to chats</button>
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">{{room}}</h4>
+        <div class="card-header">
+            <button class="back-button" onclick="window.location.href='/chat'">Back</button>
+            <h4 class="mb-0">{{ room }}</h4>
+            <!-- Add any additional header elements here -->
         </div>
         <div id="chat-messages" class="card-body">
             {% for message in messages.all %}
             <div class="message">
-                <strong>{%if message.user == request.user.username %}you{%else%}{{ message.user }}{%endif%}:</strong> {{ message.message }}
+                <strong>{% if message.user == request.user.username %}you{% else %}{{ message.user }}{% endif %}:</strong> {{ message.message }}
             </div>
             {% endfor %}
         </div>
         <div id="message-input">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Type your message" aria-label="Type your message"
-                    aria-describedby="send-button" id="messageInp">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" id="send-button">Send</button>
-                </div>
-            </div>
+            <input type="text" class="form-control" placeholder="Type your message" aria-label="Type your message" aria-describedby="send-button" id="messageInp">
+            <button class="btn btn-primary" type="button" id="send-button">Send</button>
         </div>
     </div>
 </div>

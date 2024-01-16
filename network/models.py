@@ -4,7 +4,7 @@ from django.db import models
 
 class User(AbstractUser):
 	lastMsgRead = models.DateTimeField(auto_now=True)
-
+	registration_id = models.CharField(max_length=255, blank=True, null=True)
 		
 class Comment(models.Model):
 	user = models.CharField(User, max_length=100) 

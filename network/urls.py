@@ -1,5 +1,6 @@
 from django.urls import path
-
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -20,5 +21,7 @@ urlpatterns = [
     path("chat/", views.chats, name="chat"),
     path("chat/<roomId>", views.chat_room, name="chatRoom"),
     path("messages/<roomId>/", views.get_chats, name="getChats"),
-    path("404", views.fourofour, name="404")
-]
+    path("404", views.fourofour, name="404"),
+    path("setToken", views.setToken),
+    path("firebase-messaging-sw.js", views.showFirebaseJS)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

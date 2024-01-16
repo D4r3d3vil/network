@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core import serializers
+from pyfcm import FCMNotification
 
 def login_view(request):
     if request.method == "POST":
@@ -30,6 +31,15 @@ def login_view(request):
     else:
         return render(request, "network/login.html")
 
+@login_required
+@csrf_exempt
+def setToken(request):
+    if request.method == 'POST':
+        token = request.POST.get('token')
+        user = User.objects.get(id=request.user.id)
+        user.registration_id = token
+        user.save()
+        notify(request.user, 'token added', f'javascript:alert("you now recieve notifications")')
 
 @login_required
 def logout_view(request):
@@ -42,11 +52,6 @@ def fourofour(request):
 def chats(request):
     user = User.objects.get(id=request.user.id)
     rooms = ChatRoom.objects.filter(members=user)
-    #for room in rooms:
-        #room['notifications'] = 0
-        #for message in room.messages.all():
-        #    if message.read
-        #    room['notifications']+=1
     return render(request, 'network/rooms.html', {'rooms':rooms})
 
 @staff_member_required(login_url='/404')
@@ -79,6 +84,9 @@ def get_chats(request, roomId):
         roomModel = ChatRoom.objects.get(roomId=roomId)
         roomModel.messages.add(message)
         roomModel.save()
+        if '.' in request.POST.get('message'):
+            for member in roomModel.members.exclude(user=request.user):
+                notify(member, f'New message in the {roomModel.name} group', 'https://maincs50.pythonanywhere.com/')
         return JsonResponse({'status': 200})
 
 def register(request):
@@ -214,9 +222,7 @@ def like(request):
                         user.notifications.remove(notification)
                     post.likes.add(request.user)
                     is_liked = "yes"
-                    notification = Notification(text=text, link=f"/u/{request.user}")
-                    notification.save()
-                    user.notifications.add(notification)
+                    notify(request.user, text, f"/u/{request.user}")
                     user.save()
                 elif is_liked == "yes":
                     post.likes.remove(request.user)
@@ -261,12 +267,7 @@ def follow(request):
                     notification = Notification.objects.get(text=text)
                     profile.notifications.remove(notification)
                     notification.delete()
-                notification = Notification(
-                    text=f"{request.user} now follows you!",
-                    link=f"/u/{request.user}",
-                )
-                notification.save()
-                profile.notifications.add(notification)
+                notify(request.user, f"{request.user} now follows you!", f"/u/{request.user}")
                 profile.save()
                 return JsonResponse(
                     {
@@ -291,12 +292,7 @@ def follow(request):
                     notification = Notification.objects.get(text=text)
                     profile.notifications.remove(notification)
                     notification.delete()
-                notification = Notification(
-                    text=f"{request.user} no longer follows you.",
-                    link=f"/u/{request.user}",
-                )
-                notification.save()
-                profile.notifications.add(notification)
+                notify(request.user, f"{request.user} no longer follows you.", f"/u/{request.user}")
                 profile.save()
                 return JsonResponse(
                     {
@@ -347,7 +343,6 @@ def addpost(request):
             }
             sender_profile = Profile.objects.get(user=request.user)
             for follower in sender_profile.follower.all():
-                user_profile = Profile.objects.get(user=follower)
                 notification = Notification.objects.filter(
                     text=f"{request.user} uploaded something new!",
                     link=f"/u/{request.user}",
@@ -356,13 +351,7 @@ def addpost(request):
                     notification.read = False
                     notification.save()
                 else:
-                    notification = Notification(
-                        text=f"{request.user} uploaded something new!",
-                        link=f"/u/{request.user}",
-                    )
-                    notification.save()
-                user_profile.notifications.add(notification)
-                user_profile.save()
+                    notify(follower, f"{request.user} uploaded something new!", f"/u/{request.user}")
             return JsonResponse(context, status=201)
     return JsonResponse({}, status=400)
 
@@ -388,14 +377,7 @@ def comment(request):
                     notification.read = False
                     notification.save()
                 else:
-                    notification = Notification(
-                        text=f"{request.user} commented on your post",
-                        link=f"/u/{request.user}",
-                    )
-                    notification.save()
-                user = Profile.objects.get(user=post.user)
-                user.notifications.add(notification)
-                user.save()
+                    notify(request.user, f"{request.user} commented on your post", f"/u/{request.user}")
             post.save()
             return JsonResponse(
                 {
@@ -466,3 +448,41 @@ def post(request, post):
         "comments": comments,
         "status": 200,
     })
+push_service = FCMNotification(api_key='AAAAwk-2Q9I:APA91bFaxi6IKG6R7vYo027BQ5cxOUEaWODSbmiiIF47RBWe2Xl2PJaQFx5yM6KGLJ9h_vibaqRNVOHKKYfb8KV8Ij6kb-G2bcQMvtUFpKTvP4WHNpfqzaxjlBkENPnQdryF0C2V5ckX')
+def notify(user, text, link):
+    notification = Notification(text=text, link=link)
+    notification.save()
+    user_profile = Profile.objects.get(user=user)
+    user_profile.notifications.add(notification)
+    user_profile.save()
+    user = User.objects.get(id=user.id)
+    push_service.notify_single_device(
+        registration_id=user.registration_id,
+        message_title='New notification',
+        message_body=text
+    )
+    return 200 
+def showFirebaseJS(request):
+    data='importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-app.js");' \
+         'importScripts("https://www.gstatic.com/firebasejs/8.2.0/firebase-messaging.js"); ' \
+         'var firebaseConfig = {' \
+         '        apiKey: "AIzaSyC_CZ-eSpJmK2f2O-Cou-yEs00HTVRHvVc",' \
+         '        authDomain: "network-3ae0a.firebaseapp.com",' \
+         '        projectId: "network-3ae0a",' \
+         '        storageBucket: "network-3ae0a.appspot.com",' \
+         '        messagingSenderId: "834561000402",' \
+         '        appId: "1:834561000402:web:940807b16af3321e127e0b",' \
+         ' };' \
+         'firebase.initializeApp(firebaseConfig);' \
+         'const messaging=firebase.messaging();' \
+         'messaging.setBackgroundMessageHandler(function (payload) {' \
+         '    console.log(payload);' \
+         '    const notification=JSON.parse(payload);' \
+         '    const notificationOption={' \
+         '        body:notification.body,' \
+         '        icon:notification.icon' \
+         '    };' \
+         '    return self.registration.showNotification(payload.notification.title,notificationOption);' \
+         '});'
+
+    return HttpResponse(data,content_type="text/javascript")

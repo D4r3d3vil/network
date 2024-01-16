@@ -18,7 +18,8 @@ from django.urls import include, path
 # urls.py
 from django.http import HttpResponse
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("network.urls")),
+    path("", include("network.urls"))
 ]
