@@ -39,7 +39,6 @@ def setToken(request):
         user = User.objects.get(id=request.user.id)
         user.registration_id = token
         user.save()
-        notify(request.user, 'token added', f'javascript:alert("you now recieve notifications")')
 
 @login_required
 def logout_view(request):
@@ -222,7 +221,7 @@ def like(request):
                         user.notifications.remove(notification)
                     post.likes.add(request.user)
                     is_liked = "yes"
-                    notify(request.user, text, f"/u/{request.user}")
+                    notify(post.user, text, f"/u/{request.user}")
                     user.save()
                 elif is_liked == "yes":
                     post.likes.remove(request.user)
@@ -267,7 +266,7 @@ def follow(request):
                     notification = Notification.objects.get(text=text)
                     profile.notifications.remove(notification)
                     notification.delete()
-                notify(request.user, f"{request.user} now follows you!", f"/u/{request.user}")
+                notify(user.user, f"{request.user} now follows you!", f"/u/{request.user}")
                 profile.save()
                 return JsonResponse(
                     {
@@ -292,7 +291,7 @@ def follow(request):
                     notification = Notification.objects.get(text=text)
                     profile.notifications.remove(notification)
                     notification.delete()
-                notify(request.user, f"{request.user} no longer follows you.", f"/u/{request.user}")
+                notify(user.user, f"{request.user} no longer follows you.", f"/u/{request.user}")
                 profile.save()
                 return JsonResponse(
                     {
@@ -377,7 +376,7 @@ def comment(request):
                     notification.read = False
                     notification.save()
                 else:
-                    notify(request.user, f"{request.user} commented on your post", f"/u/{request.user}")
+                    notify(post.user, f"{request.user} commented on your post", f"/u/{request.user}")
             post.save()
             return JsonResponse(
                 {

@@ -159,6 +159,7 @@
                 if(response.status == 200){
                     var temp = `<div class='message temp'><strong>you:</strong> ${message} </div>`
                     $("#chat-messages").append(temp);
+                    $('#messageInp').val("")
                     $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
                 }
             }
