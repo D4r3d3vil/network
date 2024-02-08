@@ -1,4 +1,3 @@
-# CS50w Project-4 Network
 
 Design a Twitter-like social network website for making posts and following users.
 
@@ -29,8 +28,6 @@ Using Python, JavaScript, HTML, and CSS, complete the implementation of a social
     - For security, ensure that your application is designed such that it is not possible for a user, via any route, to edit another user’s posts.
  - “Like” and “Unlike”: Users should be able to click a button or link on any post to toggle whether or not they “like” that post.
     - Using JavaScript, you should asynchronously let the server know to update the like count (as via a call to fetch) and then update the post’s like count displayed on the page, without requiring a reload of the entire page.
-
-:computer: &nbsp; **View Course [here](https://www.edx.org/course/cs50s-web-programming-with-python-and-javascript)**
 
 
 &nbsp;
